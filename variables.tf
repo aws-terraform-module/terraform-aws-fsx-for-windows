@@ -31,7 +31,7 @@ variable "ad_type" {
 # FSx for Windows File Server
 #######################################
 variable "active_directory_id" {
-  description = "(Optional) The ID for an existing Microsoft Active Directory instance that the file system should join when it's created. Cannot be specified with `self_managed_active_directory`."
+  description = "(Optional) The ID of an existing AWS Managed Microsoft Active Directory for the file system to join. If not specified, a new AWS Managed AD will be created. Cannot be used with `self_managed_active_directory`."
   type        = string
   default     = ""
 }
