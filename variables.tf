@@ -30,6 +30,12 @@ variable "ad_type" {
 #######################################
 # FSx for Windows File Server
 #######################################
+variable "active_directory_id" {
+  description = "(Optional) The ID for an existing Microsoft Active Directory instance that the file system should join when it's created. Cannot be specified with `self_managed_active_directory`."
+  type        = string
+  default     = ""
+}
+
 variable "subnet_ids" {
   description = "A list of IDs for the subnets that the file system will be accessible from. To specify more than a single subnet set `deployment_type` to `MULTI_AZ_1`"
   type        = list(string)
