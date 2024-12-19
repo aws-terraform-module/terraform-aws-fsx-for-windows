@@ -1,3 +1,16 @@
+#################################################
+# VPC Setting
+# Use for both AWS Managed AD & FSx for Windows
+#################################################
+variable "subnet_ids" {
+  description = "A list of IDs for the subnets that the file system will be accessible from. To specify more than a single subnet set `deployment_type` to `MULTI_AZ_1`"
+  type        = list(string)
+  default     = []
+  validation {
+    condition     = length(distinct([for subnet_id in var.subnet_ids : data.aws_subnet.selected[subnet_id].availability_zone])) >= 2
+    error_message = "You must provide at least two subnets in different availability zones."
+  }
+}
 #######################################
 # AWS Dicrectory Service (AD)
 #######################################
@@ -26,6 +39,12 @@ variable "ad_type" {
   default     = "MicrosoftAD"
 }
 
+variable "vpc_id" {
+  description = "(Required) The identifier of the VPC that the directory is in."
+  type        = string
+  default     = "MicrosoftAD"
+}
+
 
 #######################################
 # FSx for Windows File Server
@@ -36,10 +55,10 @@ variable "active_directory_id" {
   default     = ""
 }
 
-variable "subnet_ids" {
-  description = "A list of IDs for the subnets that the file system will be accessible from. To specify more than a single subnet set `deployment_type` to `MULTI_AZ_1`"
-  type        = list(string)
-  default     = []
+variable "preferred_subnet_id" {
+  description = "Specifies the subnet in which you want the preferred file server to be located. Required for when deployment type is `MULTI_AZ_1`"
+  type        = string
+  default     = ""
 }
 
 variable "deployment_type" {
@@ -65,7 +84,6 @@ variable "throughput_capacity" {
   type        = number
   default     = 1024
 }
-
 
 variable "disk_iops_configuration" {
   description = "The SSD IOPS configuration for the Amazon FSx for Windows File Server file system. Default values comprise: `iops` = 40000 and `mode` = `USER_PROVISIONED` "
