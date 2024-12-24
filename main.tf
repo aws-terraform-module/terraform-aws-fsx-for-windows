@@ -38,13 +38,14 @@ resource "aws_directory_service_directory" "ad" {
 
 ############# FSX ##############
 resource "aws_fsx_windows_file_system" "fsx_windows" {
-  active_directory_id = local.active_directory_id
-  storage_type        = var.storage_type
-  storage_capacity    = var.storage_capacity
-  subnet_ids          = var.subnet_ids
-  preferred_subnet_id = local.active_directory_create && length(local.directory_service_subnets) > 0 ? local.directory_service_subnets[0] : var.preferred_subnet_id
-  deployment_type     = var.deployment_type
-  throughput_capacity = var.throughput_capacity
+  active_directory_id             = local.active_directory_id
+  storage_type                    = var.storage_type
+  storage_capacity                = var.storage_capacity
+  subnet_ids                      = var.subnet_ids
+  preferred_subnet_id             = local.active_directory_create && length(local.directory_service_subnets) > 0 ? local.directory_service_subnets[0] : var.preferred_subnet_id
+  deployment_type                 = var.deployment_type
+  throughput_capacity             = var.throughput_capacity
+  automatic_backup_retention_days = var.automatic_backup_retention_days
 
   dynamic "audit_log_configuration" {
     for_each = length(var.audit_log_configuration) > 0 ? [var.audit_log_configuration] : []

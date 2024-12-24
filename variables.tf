@@ -79,6 +79,12 @@ variable "throughput_capacity" {
   default     = 1024
 }
 
+variable "automatic_backup_retention_days" {
+  description = "(Optional) The number of days to retain automatic backups. Minimum of 0 and maximum of 90. Defaults to 7. Set to 0 to disable"
+  type        = number
+  default     = 7
+}
+
 variable "disk_iops_configuration" {
   description = "The SSD IOPS configuration for the Amazon FSx for Windows File Server file system. Default values comprise: `iops` = 40000 and `mode` = `USER_PROVISIONED` "
   type = object({
