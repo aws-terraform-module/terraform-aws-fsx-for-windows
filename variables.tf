@@ -12,16 +12,16 @@ variable "subnet_ids" {
   }
 }
 #######################################
-# AWS Dicrectory Service (AD)
+# AWS Directory Service (AD)
 #######################################
 variable "ad_fqdn_name" {
-  description = "(Required) The fully qualified name for the directory, such as `corp.example.com`"
+  description = "(Optional) The fully qualified domain name (FQDN) of the directory (e.g., `corp.example.com`). Required only when not attaching a self-managed AD."
   type        = string
   default     = ""
 }
 
 variable "ad_admin_password" {
-  description = "(Required) The password for the directory administrator or connector user"
+  description = "(Optional) The password for the directory administrator user .If not specified, a new password will be automatically generated"
   type        = string
   default     = ""
 }
@@ -32,12 +32,6 @@ variable "ad_edition" {
   default     = "Standard"
 }
 
-
-variable "ad_type" {
-  description = " The directory type (`SimpleAD`, `ADConnector` or `MicrosoftAD` are accepted values). Defaults to `MicrosoftAD`"
-  type        = string
-  default     = "MicrosoftAD"
-}
 
 variable "vpc_id" {
   description = "(Required) The identifier of the VPC that the directory is in."
@@ -96,9 +90,30 @@ variable "disk_iops_configuration" {
     mode = "USER_PROVISIONED"
   }
 }
+variable "automatic_backup_retention_days" {
+  description = "(Required) Throughput (megabytes per second) of the file system. Current maximun is 2048 MB/s .Default is 1024 MB/s"
+  type        = number
+  default     = 1024
+}
+
+variable "audit_log_configuration" {
+  description = "The SSD IOPS configuration for the Amazon FSx for Windows File Server file system. Default values comprise: `iops` = 40000 and `mode` = `USER_PROVISIONED` "
+  type = object({
+    audit_log_destination             = string
+    file_access_audit_log_level       = string
+    file_share_access_audit_log_level = string
+  })
+  default = {
+    audit_log_destination       = null
+    file_access_audit_log_level = "DISABLED"
+    audit_log_configuration     = "DISABLED"
+  }
+}
+
 
 variable "tags" {
   description = "A map of tags to add to all resources"
   type        = map(string)
   default     = {}
 }
+
