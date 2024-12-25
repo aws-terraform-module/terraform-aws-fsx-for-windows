@@ -1,11 +1,3 @@
-variable "aws_region" {
-  description = "(Optional) Region in which AWS Resources to be created. Default region is `us-east-1`"
-  type        = string
-  default     = "us-east-1"
-}
-
-
-
 #################################################
 # VPC Setting
 # Use for both AWS Managed AD & FSx for Windows
