@@ -51,6 +51,11 @@ variable "vpc_id" {
 #######################################
 # FSx for Windows File Server
 #######################################
+variable "fsx_logical_name" {
+  description = "(Optional) A logical name for the FSx file system to identify it within the infrastructure. This will be added as a tag."
+  type        = string
+  default     = null
+}
 variable "active_directory_id" {
   description = "(Optional) The ID of an existing AWS Managed Microsoft Active Directory for the file system to join. If not specified, a new AWS Managed AD will be created. Cannot be used with `self_managed_active_directory`."
   type        = string

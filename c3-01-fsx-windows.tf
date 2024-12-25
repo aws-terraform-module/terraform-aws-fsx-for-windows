@@ -67,6 +67,9 @@ resource "aws_fsx_windows_file_system" "fsx_windows" {
     }
   }
 
-  tags = var.tags
+  tags = merge(
+    var.tags,
+    var.fsx_logical_name != null ? { "Name" = var.fsx_logical_name } : {}
+  )
 }
 
