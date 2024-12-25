@@ -1,3 +1,11 @@
+variable "aws_region" {
+  description = "Region in which AWS Resources to be created. Default region is `us-east-1`"
+  type        = string
+  default     = "us-east-1"
+}
+
+
+
 #################################################
 # VPC Setting
 # Use for both AWS Managed AD & FSx for Windows
@@ -47,6 +55,12 @@ variable "active_directory_id" {
   description = "(Optional) The ID of an existing AWS Managed Microsoft Active Directory for the file system to join. If not specified, a new AWS Managed AD will be created. Cannot be used with `self_managed_active_directory`."
   type        = string
   default     = ""
+}
+
+variable "aliases" {
+  description = "(Optional) An array DNS alias names that you want to associate with the Amazon FSx file system."
+  type        = list(string)
+  default     = []
 }
 
 variable "preferred_subnet_id" {

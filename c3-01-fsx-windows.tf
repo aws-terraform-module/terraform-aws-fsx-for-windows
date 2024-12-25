@@ -39,6 +39,7 @@ resource "aws_directory_service_directory" "ad" {
 ############# FSX ##############
 resource "aws_fsx_windows_file_system" "fsx_windows" {
   active_directory_id             = local.active_directory_id
+  aliases                         = var.aliases
   storage_type                    = var.storage_type
   storage_capacity                = var.storage_capacity
   subnet_ids                      = var.subnet_ids
