@@ -18,10 +18,6 @@ variable "subnet_ids" {
   description = "(Optional) A list of IDs for the subnets that the file system will be accessible from. To specify more than a single subnet set `deployment_type` to `MULTI_AZ_1`. If not specify, the module will get subnet from `vpc_id`"
   type        = list(string)
   default     = []
-  validation {
-    condition     = length(var.subnet_ids) > 0 ? length(distinct([for subnet_id in var.subnet_ids : data.aws_subnet.selected[subnet_id].availability_zone])) >= 2 : true
-    error_message = "You must provide at least two subnets in different availability zones."
-  }
 }
 #######################################
 # AWS Directory Service (AD)
@@ -70,10 +66,6 @@ variable "preferred_subnet_id" {
   type        = string
   default     = ""
 
-  validation {
-    condition     = length(var.subnet_ids) > 0 ? contains(var.subnet_ids, var.preferred_subnet_id) : true
-    error_message = "preferred_subnet_id must be one of the values in subnet_ids."
-  }
 }
 
 
