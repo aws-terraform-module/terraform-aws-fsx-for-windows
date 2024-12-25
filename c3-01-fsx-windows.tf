@@ -1,7 +1,7 @@
 data "aws_subnets" "selected" {
   filter {
     name   = "vpc-id"
-    values = [data.aws_vpc.selected.values[0].vpc_id]
+    values = [var.vpc_id]
   }
 }
 
@@ -20,12 +20,25 @@ locals {
   ##########################################
   # Get 1 subnet per AZ (For AWS Managed AD)
   ##########################################
-  subnets_by_az = {
-    for subnet in data.aws_subnets.selected.ids : data.aws_subnet.subnet[subnet].availability_zone => subnet
+  subnets_with_az = {
+    for id, subnet in data.aws_subnet.subnet :
+    id => subnet.availability_zone
   }
 
-  # Take the first 2 subnets with different AZ
-  extracted_subnets = var.subnet_ids == [] ? slice(values(local.subnets_by_az), 0, 2) : slice(values(var.subnet_ids), 0, 2)
+  # If user provided subnet IDs, check for distinct AZs
+  user_selected_subnets = var.subnet_ids != [] ? [
+    for subnet_id in var.subnet_ids :
+    subnet_id if !contains(
+      [for prev in slice(var.subnet_ids, 0, index(subnet_id)) : local.subnets_with_az[prev]],
+      local.subnets_with_az[subnet_id]
+    )
+  ] : []
+
+  ##########################################
+  # Final Extracted Subnets (Ensure 2 distinct AZs)
+  ##########################################
+  extracted_subnets = length(local.user_selected_subnets) > 0 ? slice(local.user_selected_subnets, 0, 2) : slice(keys(local.subnets_with_az), 0, 2)
+
 }
 
 ###########################################
