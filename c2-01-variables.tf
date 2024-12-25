@@ -58,49 +58,57 @@ variable "active_directory_id" {
 }
 
 variable "aliases" {
-  description = "(Optional) An array DNS alias names that you want to associate with the Amazon FSx file system."
+  description = "(Optional) An array of DNS alias names that you want to associate with the Amazon FSx file system."
   type        = list(string)
   default     = []
 }
 
 variable "preferred_subnet_id" {
-  description = "Specifies the subnet in which you want the preferred file server to be located. Required for when deployment type is `MULTI_AZ_1`"
+  description = "Specifies the subnet in which you want the preferred file server to be located. Required when deployment type is `MULTI_AZ_1`."
   type        = string
   default     = ""
 }
 
 variable "deployment_type" {
-  description = "(Optional) Specifies the file system deployment type, valid values are `MULTI_AZ_1`, `SINGLE_AZ_1` and `SINGLE_AZ_2`. Default value is `MULTI_AZ_1`"
+  description = "(Optional) Specifies the file system deployment type. Valid values are `MULTI_AZ_1`, `SINGLE_AZ_1`, and `SINGLE_AZ_2`. Default value is `MULTI_AZ_1`."
   type        = string
   default     = "MULTI_AZ_1"
+  validation {
+    condition     = contains(["MULTI_AZ_1", "SINGLE_AZ_1", "SINGLE_AZ_2"], var.deployment_type)
+    error_message = "Deployment type must be one of `MULTI_AZ_1`, `SINGLE_AZ_1`, or `SINGLE_AZ_2`."
+  }
 }
 
 variable "storage_type" {
-  description = "(Optional) Specifies the storage type, Valid values are `SSD` and `HDD`. `HDD` is supported on `SINGLE_AZ_2` and `MULTI_AZ_1` Windows file system deployment types. Default value is `SSD`"
+  description = "(Optional) Specifies the storage type. Valid values are `SSD` and `HDD`. `HDD` is supported only with `SINGLE_AZ_2` and `MULTI_AZ_1` deployment types. Default value is `SSD`."
   type        = string
   default     = "SSD"
+  validation {
+    condition     = contains(["SSD", "HDD"], var.storage_type)
+    error_message = "Storage type must be either `SSD` or `HDD`."
+  }
 }
 
 variable "storage_capacity" {
-  description = "(Optional) Storage capacity (GiB) of the file system. Minimum of 32 and maximum of 65536. If the storage type is set to `HDD` the minimum value is 2000. Required when not creating filesystem for a backup. Default value is 80 GiB"
+  description = "(Optional) Storage capacity (GiB) of the file system. Minimum of 32 and maximum of 65536. For `HDD`, the minimum value is 2000. Default is 80 GiB."
   type        = number
   default     = 80
 }
 
 variable "throughput_capacity" {
-  description = "(Required) Throughput (megabytes per second) of the file system. Current maximun is 2048 MB/s .Default is 1024 MB/s"
+  description = "(Required) Throughput (megabytes per second) of the file system. Maximum is 2048 MB/s. Default is 1024 MB/s."
   type        = number
   default     = 1024
 }
 
 variable "automatic_backup_retention_days" {
-  description = "(Optional) The number of days to retain automatic backups. Minimum of 0 and maximum of 90. Defaults to 7. Set to 0 to disable"
+  description = "(Optional) The number of days to retain automatic backups. Minimum of 0 and maximum of 90. Defaults to 7. Set to 0 to disable backups."
   type        = number
   default     = 7
 }
 
 variable "disk_iops_configuration" {
-  description = "The SSD IOPS configuration for the Amazon FSx for Windows File Server file system. Default values comprise: `iops` = 40000 and `mode` = `USER_PROVISIONED` "
+  description = "(Optional) The SSD IOPS configuration for the Amazon FSx for Windows File Server file system."
   type = object({
     iops = number
     mode = string
@@ -110,29 +118,23 @@ variable "disk_iops_configuration" {
     mode = "USER_PROVISIONED"
   }
 }
-variable "automatic_backup_retention_days" {
-  description = "(Required) Throughput (megabytes per second) of the file system. Current maximun is 2048 MB/s .Default is 1024 MB/s"
-  type        = number
-  default     = 1024
-}
 
 variable "audit_log_configuration" {
-  description = "The SSD IOPS configuration for the Amazon FSx for Windows File Server file system. Default values comprise: `iops` = 40000 and `mode` = `USER_PROVISIONED` "
+  description = "(Optional) Configuration for auditing file system access and file share access logs."
   type = object({
     audit_log_destination             = string
     file_access_audit_log_level       = string
     file_share_access_audit_log_level = string
   })
   default = {
-    audit_log_destination       = null
-    file_access_audit_log_level = "DISABLED"
-    audit_log_configuration     = "DISABLED"
+    audit_log_destination             = null
+    file_access_audit_log_level       = "DISABLED"
+    file_share_access_audit_log_level = "DISABLED"
   }
 }
 
-
 variable "tags" {
-  description = "A map of tags to add to all resources"
+  description = "A map of tags to add to all resources."
   type        = map(string)
   default     = {}
 }
