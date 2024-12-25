@@ -1,3 +1,15 @@
+data "aws_subnets" "selected" {
+  filter {
+    name   = "vpc-id"
+    values = [data.aws_vpc.selected.values[0].vpc_id]
+  }
+}
+
+data "aws_subnet" "subnet" {
+  for_each = toset(data.aws_subnets.selected.ids)
+  id       = each.key
+}
+
 locals {
   ad_admin_password_create = length(var.ad_admin_password) == 0
   ad_admin_password        = local.ad_admin_password_create ? random_password.ad_admin_password[0].result : try(var.ad_admin_password[0], "")
@@ -9,12 +21,16 @@ locals {
   # Get 1 subnet per AZ (For AWS Managed AD)
   ##########################################
   subnets_by_az = {
-    for subnet_id, subnet_data in data.aws_subnet.selected : subnet_data.availability_zone => subnet_id
+    for subnet in data.aws_subnets.selected.ids : data.aws_subnet.subnet[subnet].availability_zone => subnet
   }
-  # Take the first 2 subnet
-  directory_service_subnets = slice(values(local.subnets_by_az), 0, 2)
+
+  # Take the first 2 subnets with different AZ
+  extracted_subnets = var.subnet_ids == [] ? slice(values(local.subnets_by_az), 0, 2) : slice(values(var.subnet_ids), 0, 2)
 }
 
+###########################################
+# AWS Managed AD
+###########################################
 resource "random_password" "ad_admin_password" {
   count   = local.ad_admin_password_create ? 1 : 0
   length  = 24
@@ -29,21 +45,24 @@ resource "aws_directory_service_directory" "ad" {
   type     = "MicrosoftAD"
 
   vpc_settings {
-    vpc_id     = data.aws_vpc.selected.values[0].vpc_id # get subnet from vpc_id
-    subnet_ids = local.directory_service_subnets
+    vpc_id     = data.aws_vpc.selected.values[0].vpc_id
+    subnet_ids = local.extracted_subnets
   }
 
   tags = var.tags
 }
 
-############# FSX ##############
+
+###########################################
+# AWS FSx for Windows File Server
+###########################################
 resource "aws_fsx_windows_file_system" "fsx_windows" {
   active_directory_id             = local.active_directory_id
   aliases                         = var.aliases
   storage_type                    = var.storage_type
   storage_capacity                = var.storage_capacity
-  subnet_ids                      = var.subnet_ids
-  preferred_subnet_id             = local.active_directory_create && length(local.directory_service_subnets) > 0 ? local.directory_service_subnets[0] : var.preferred_subnet_id
+  subnet_ids                      = var.subnet_ids == [] ? data.aws_subnets.selected.ids : var.subnet_ids
+  preferred_subnet_id             = var.preferred_subnet_id == "" ? local.extracted_subnets[0] : var.preferred_subnet_id
   deployment_type                 = var.deployment_type
   throughput_capacity             = var.throughput_capacity
   automatic_backup_retention_days = var.automatic_backup_retention_days

@@ -1,5 +1,5 @@
 variable "aws_region" {
-  description = "Region in which AWS Resources to be created. Default region is `us-east-1`"
+  description = "(Optional) Region in which AWS Resources to be created. Default region is `us-east-1`"
   type        = string
   default     = "us-east-1"
 }
@@ -10,12 +10,24 @@ variable "aws_region" {
 # VPC Setting
 # Use for both AWS Managed AD & FSx for Windows
 #################################################
+variable "vpc_id" {
+  description = "(Required) The identifier of the VPC that the directory is in."
+  type        = string
+  default     = ""
+
+  validation {
+    condition     = length(var.vpc_id) > 0 && can(regex("^vpc-[0-9a-f]{8,17}$", var.vpc_id))
+    error_message = "vpc_id must be a non-empty string and match the format 'vpc-xxxxxxxx' where x is a hexadecimal character."
+  }
+}
+
+
 variable "subnet_ids" {
-  description = "A list of IDs for the subnets that the file system will be accessible from. To specify more than a single subnet set `deployment_type` to `MULTI_AZ_1`"
+  description = "(Optional) A list of IDs for the subnets that the file system will be accessible from. To specify more than a single subnet set `deployment_type` to `MULTI_AZ_1`. If not specify, the module will get subnet from `vpc_id`"
   type        = list(string)
   default     = []
   validation {
-    condition     = length(distinct([for subnet_id in var.subnet_ids : data.aws_subnet.selected[subnet_id].availability_zone])) >= 2
+    condition     = length(var.subnet_ids) > 0 ? length(distinct([for subnet_id in var.subnet_ids : data.aws_subnet.selected[subnet_id].availability_zone])) >= 2 : true
     error_message = "You must provide at least two subnets in different availability zones."
   }
 }
@@ -41,13 +53,6 @@ variable "ad_edition" {
 }
 
 
-variable "vpc_id" {
-  description = "(Required) The identifier of the VPC that the directory is in."
-  type        = string
-  default     = "MicrosoftAD"
-}
-
-
 #######################################
 # FSx for Windows File Server
 #######################################
@@ -69,10 +74,16 @@ variable "aliases" {
 }
 
 variable "preferred_subnet_id" {
-  description = "Specifies the subnet in which you want the preferred file server to be located. Required when deployment type is `MULTI_AZ_1`."
+  description = "(Optional) Specifies the subnet in which you want the preferred file server to be located. Required when deployment type is `MULTI_AZ_1`."
   type        = string
   default     = ""
+
+  validation {
+    condition     = length(var.subnet_ids) > 0 ? contains(var.subnet_ids, var.preferred_subnet_id) : true
+    error_message = "preferred_subnet_id must be one of the values in subnet_ids."
+  }
 }
+
 
 variable "deployment_type" {
   description = "(Optional) Specifies the file system deployment type. Valid values are `MULTI_AZ_1`, `SINGLE_AZ_1`, and `SINGLE_AZ_2`. Default value is `MULTI_AZ_1`."
@@ -101,7 +112,7 @@ variable "storage_capacity" {
 }
 
 variable "throughput_capacity" {
-  description = "(Required) Throughput (megabytes per second) of the file system. Maximum is 2048 MB/s. Default is 1024 MB/s."
+  description = "(Optional) Throughput (megabytes per second) of the file system. Maximum is 2048 MB/s. Default is 1024 MB/s."
   type        = number
   default     = 1024
 }
