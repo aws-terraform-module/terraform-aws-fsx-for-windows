@@ -20,19 +20,31 @@ locals {
   ##########################################
   # Get 1 subnet per AZ (For AWS Managed AD)
   ##########################################
+
+  ##########################################
+  # Step 1: Extract availability zones for subnets
+  ##########################################
   subnets_with_az = {
     for id, subnet in data.aws_subnet.subnet :
     id => subnet.availability_zone
   }
 
-  # If user provided subnet IDs, check for distinct AZs
-  user_selected_subnets = var.subnet_ids != [] ? [
+  ##########################################
+  # Step 2: Ensure distinct availability zones
+  ##########################################
+  distinct_subnet_ids = var.subnet_ids != [] ? [
     for subnet_id in var.subnet_ids :
     subnet_id if !contains(
-      [for prev in slice(var.subnet_ids, 0, length(local.user_selected_subnets)) : local.subnets_with_az[prev]],
+      [for prev_subnet_id in slice(var.subnet_ids, 0, index(var.subnet_ids, subnet_id)) :
+      local.subnets_with_az[prev_subnet_id]],
       local.subnets_with_az[subnet_id]
     )
   ] : []
+
+  ##########################################
+  # Step 3: Final Extracted Subnets (Ensure 2 distinct AZs)
+  ##########################################
+  user_selected_subnets = length(local.distinct_subnet_ids) > 0 ? slice(local.distinct_subnet_ids, 0, 2) : slice(keys(local.subnets_with_az), 0, 2)
 
   ##########################################
   # Final Extracted Subnets (Ensure 2 distinct AZs)
