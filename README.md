@@ -32,7 +32,7 @@ module "fsx-windows" {
   ####################################
   # AWS FSx for Windows Configuration
   ####################################
-  fsx_logical_name                = "fsx-windows-${var.business_divsion}-${var.environment}"
+  fsx_logical_name                = "fsx-windows-demo"
   active_directory_id             = "d-906b4b4b"
   aliases                         = ["example.demo.local", "example2.demo.local"]
   preferred_subnet_id             = "subnet-0b4b4b4b4b4b4b4b4"
@@ -48,7 +48,7 @@ module "fsx-windows" {
   }
 
   audit_log_configuration = {
-    audit_log_destination             = "CloudWatch"
+    audit_log_destination             = null
     file_access_audit_log_level       = "DISABLED"
     file_share_access_audit_log_level = "DISABLED"
   }
