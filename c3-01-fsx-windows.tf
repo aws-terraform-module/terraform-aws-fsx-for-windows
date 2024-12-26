@@ -29,7 +29,7 @@ locals {
   user_selected_subnets = var.subnet_ids != [] ? [
     for subnet_id in var.subnet_ids :
     subnet_id if !contains(
-      [for prev in slice(var.subnet_ids, 0, index(subnet_id)) : local.subnets_with_az[prev]],
+      [for prev in slice(var.subnet_ids, 0, length(local.user_selected_subnets)) : local.subnets_with_az[prev]],
       local.subnets_with_az[subnet_id]
     )
   ] : []
