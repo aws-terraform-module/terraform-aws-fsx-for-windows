@@ -1,20 +1,36 @@
 # terraform-aws-fsx-for-windows
 
+A Terraform module to deploy and configure Amazon FSx for Windows File Server with AWS Managed Active Directory (AD) integration.
 
-Minimal Example
+---
+
+## Current Limitations
+
+1. **AWS Managed Active Directory (AD) Only**  
+   This module currently supports **only AWS Managed Active Directory**. Integration with other AD types is not available.
+
+2. **No Custom Subnet Specification**  
+   Specifying custom subnets for the FSx file system is not supported at this time.
+
+---
+
+## Usage Examples
+
+### Minimal Example
+A simple configuration to deploy FSx for Windows:
+
 ```hcl
-
 module "fsx-windows" {
-source = "github.com/aws-terraform-module/terraform-aws-fsx-for-windows"
+  source = "github.com/aws-terraform-module/terraform-aws-fsx-for-windows"
 
-vpc_id           = "vpc-xxx"
-ad_fqdn_name     = "fsx.demo.local"
-fsx_logical_name = "fsx-windows-demo"
-
+  vpc_id           = "vpc-xxx"
+  ad_fqdn_name     = "fsx.demo.local"
+  fsx_logical_name = "fsx-windows-demo"
 }
 ```
+### Full Example
+A full configuration to deploy FSx for Windows:
 
-Full example
 ```hcl
 
 module "fsx-windows" {
