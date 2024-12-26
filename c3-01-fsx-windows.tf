@@ -22,7 +22,7 @@ locals {
   ##########################################
 
   ##########################################
-  # Step 1: Extract availability zones for subnets
+  # Extract subnets & AZs
   ##########################################
   subnets_with_az = {
     for id, subnet in data.aws_subnet.subnet :
@@ -30,27 +30,9 @@ locals {
   }
 
   ##########################################
-  # Step 2: Ensure distinct availability zones
+  # Extracted first 2 subnets (Ensure 2 distinct AZs)
   ##########################################
-  distinct_subnet_ids = var.subnet_ids != [] ? [
-    for subnet_id in var.subnet_ids :
-    subnet_id if !contains(
-      [for prev_subnet_id in var.subnet_ids :
-      local.subnets_with_az[prev_subnet_id] if prev_subnet_id != subnet_id],
-      local.subnets_with_az[subnet_id]
-    )
-  ] : []
-
-
-  ##########################################
-  # Step 3: Final Extracted Subnets (Ensure 2 distinct AZs)
-  ##########################################
-  user_selected_subnets = length(local.distinct_subnet_ids) > 0 ? slice(local.distinct_subnet_ids, 0, 2) : slice(keys(local.subnets_with_az), 0, 2)
-
-  ##########################################
-  # Final Extracted Subnets (Ensure 2 distinct AZs)
-  ##########################################
-  extracted_subnets = length(local.user_selected_subnets) > 0 ? slice(local.user_selected_subnets, 0, 2) : slice(keys(local.subnets_with_az), 0, 2)
+  extracted_subnets = slice(keys(local.subnets_with_az), 0, 2)
 
 }
 
@@ -87,8 +69,8 @@ resource "aws_fsx_windows_file_system" "fsx_windows" {
   aliases                         = var.aliases
   storage_type                    = var.storage_type
   storage_capacity                = var.storage_capacity
-  subnet_ids                      = var.subnet_ids == [] ? data.aws_subnets.selected.ids : var.subnet_ids
-  preferred_subnet_id             = var.preferred_subnet_id == "" ? (length(local.extracted_subnets) > 0 ? local.extracted_subnets[0] : null) : var.preferred_subnet_id
+  subnet_ids                      = data.aws_subnets.selected.ids
+  preferred_subnet_id             = length(var.preferred_subnet_id) == 0 ? (length(local.extracted_subnets) > 0 ? local.extracted_subnets[0] : null) : var.preferred_subnet_id
   deployment_type                 = var.deployment_type
   throughput_capacity             = var.throughput_capacity
   automatic_backup_retention_days = var.automatic_backup_retention_days

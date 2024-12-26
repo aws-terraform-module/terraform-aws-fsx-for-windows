@@ -7,3 +7,4 @@ output "AD_password" {
   description = "AWS Managed AD admin password"
   value       = try(aws_directory_service_directory.ad[0].password, "")
 }
+
