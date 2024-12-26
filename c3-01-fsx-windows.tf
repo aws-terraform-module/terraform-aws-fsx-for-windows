@@ -58,7 +58,7 @@ resource "aws_directory_service_directory" "ad" {
   type     = "MicrosoftAD"
 
   vpc_settings {
-    vpc_id     = data.aws_vpc.selected.values[0].vpc_id
+    vpc_id     = var.vpc_id
     subnet_ids = local.extracted_subnets
   }
 
