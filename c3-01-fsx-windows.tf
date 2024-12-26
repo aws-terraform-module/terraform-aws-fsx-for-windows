@@ -97,9 +97,9 @@ resource "aws_fsx_windows_file_system" "fsx_windows" {
     for_each = length(var.audit_log_configuration) > 0 ? [var.audit_log_configuration] : []
 
     content {
-      audit_log_destination             = try(each.value.audit_log_destination, null)
-      file_access_audit_log_level       = try(each.value.file_access_audit_log_level, null)
-      file_share_access_audit_log_level = try(each.value.file_share_access_audit_log_level, null)
+      audit_log_destination             = try(audit_log_configuration.value.audit_log_destination, null)
+      file_access_audit_log_level       = try(audit_log_configuration.value.file_access_audit_log_level, null)
+      file_share_access_audit_log_level = try(audit_log_configuration.value.file_share_access_audit_log_level, null)
     }
   }
 
@@ -107,8 +107,8 @@ resource "aws_fsx_windows_file_system" "fsx_windows" {
     for_each = length(var.disk_iops_configuration) > 0 ? [var.disk_iops_configuration] : []
 
     content {
-      iops = try(each.value.iops, null)
-      mode = try(each.value.mode, null)
+      iops = try(disk_iops_configuration.value.iops, null)
+      mode = try(disk_iops_configuration.value.mode, null)
     }
   }
 
