@@ -21,25 +21,12 @@ locals {
   # Get 1 subnet per AZ (For AWS Managed AD)
   ##########################################
 
-  # Create a map of subnet IDs to their availability zones
   subnets_with_az = {
     for id, subnet in data.aws_subnet.subnet :
     id => subnet.availability_zone
   }
 
-  # Group subnets by AZ
-  subnets_by_az = {
-    for id, az in local.subnets_with_az :
-    az => (local.subnets_by_az[az] != null ? local.subnets_by_az[az] : []) + [id]
-  }
-
-  # Extract one subnet ID from each AZ
-  subnets_per_az = [
-    for az, subnet_ids in local.subnets_by_az : subnet_ids[0]
-  ]
-
-  # Limit the result to two subnets
-  extracted_subnets = slice(local.subnets_per_az, 0, 2)
+  extracted_subnets = slice(keys(local.subnets_with_az), 0, 2)
 }
 
 ###########################################
