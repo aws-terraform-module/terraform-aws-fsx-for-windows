@@ -75,6 +75,14 @@ resource "aws_fsx_windows_file_system" "fsx_windows" {
       )
       error_message = "MULTI_AZ_1 deployment type requires at least 2 subnets in different AZs"
     }
+
+    precondition {
+      condition = (
+        var.storage_type == "SSD" && var.storage_capacity >= 32 ||
+        var.storage_type == "HDD" && var.storage_capacity >= 2000
+      )
+      error_message = "Minimum storage capacity for SSD is 32 GiB and for HDD is 2000 GiB"
+    }
   }
 
   active_directory_id             = local.active_directory_id
