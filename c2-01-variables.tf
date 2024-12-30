@@ -30,7 +30,7 @@ variable "ad_fqdn_name" {
 }
 
 variable "ad_admin_password" {
-  description = "(Optional) The password for the directory administrator user .If not specified, a new password will be automatically generated"
+  description = "(Optional) The password for the directory administrator user .If not specified, a new password will be automatically generated. The password will be display in S3 .tfstate file"
   type        = string
   default     = ""
 }
