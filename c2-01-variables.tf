@@ -66,6 +66,10 @@ variable "preferred_subnet_id" {
   type        = string
   default     = ""
 
+  validation {
+    condition     = var.deployment_type != "MULTI_AZ_1" || var.preferred_subnet_id != ""
+    error_message = "preferred_subnet_id is required when deployment_type is MULTI_AZ_1."
+  }
 }
 
 
@@ -110,6 +114,11 @@ variable "automatic_backup_retention_days" {
   description = "(Optional) The number of days to retain automatic backups. Minimum of 0 and maximum of 90. Defaults to 7. Set to 0 to disable backups."
   type        = number
   default     = 7
+
+  validation {
+    condition     = var.automatic_backup_retention_days >= 0 && var.automatic_backup_retention_days <= 90
+    error_message = "Automatic backup retention days must be between 0 and 90."
+  }
 }
 
 variable "disk_iops_configuration" {
