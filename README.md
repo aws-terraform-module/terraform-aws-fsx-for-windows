@@ -42,7 +42,7 @@ module "fsx-windows" {
   # AWS Managed AD Configuration
   ###############################
   ad_fqdn_name      = "fsx.demo.local"
-  ad_admin_password = "Password@123"
+  ad_admin_password = "<sensitive>" # Store securely in AWS Secrets Manager or similar
   ad_edition        = "Standard"
 
   ####################################

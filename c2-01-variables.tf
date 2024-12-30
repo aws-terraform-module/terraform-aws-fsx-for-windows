@@ -5,12 +5,6 @@
 variable "vpc_id" {
   description = "(Required) The identifier of the VPC that the directory is in."
   type        = string
-  default     = ""
-
-  validation {
-    condition     = length(var.vpc_id) > 0 && can(regex("^vpc-[0-9a-f]{8,17}$", var.vpc_id))
-    error_message = "vpc_id must be a non-empty string and match the format 'vpc-xxxxxxxx' where x is a hexadecimal character."
-  }
 }
 
 ## TODO : Enabled for user to input custom subnets
@@ -39,6 +33,11 @@ variable "ad_edition" {
   description = "(Optional, for type `MicrosoftAD` only) The `MicrosoftAD` edition (`Standard` or `Enterprise`). Defaults to `Standard`"
   type        = string
   default     = "Standard"
+
+  validation {
+    condition     = contains(["Standard", "Enterprise"], var.ad_edition)
+    error_message = "AD edition must be either 'Standard' or 'Enterprise'."
+  }
 }
 
 
@@ -100,6 +99,11 @@ variable "throughput_capacity" {
   description = "(Optional) Throughput (megabytes per second) of the file system. Maximum is 2048 MB/s. Default is 1024 MB/s."
   type        = number
   default     = 1024
+
+  validation {
+    condition     = var.throughput_capacity >= 8 && var.throughput_capacity <= 2048
+    error_message = "Throughput capacity must be between 8 and 2048 MB/s."
+  }
 }
 
 variable "automatic_backup_retention_days" {
@@ -131,6 +135,16 @@ variable "audit_log_configuration" {
     audit_log_destination             = null
     file_access_audit_log_level       = "DISABLED"
     file_share_access_audit_log_level = "DISABLED"
+  }
+  validation {
+    condition = contains(["DISABLED", "SUCCESS_ONLY", "FAILURE_ONLY", "SUCCESS_AND_FAILURE"],
+    var.audit_log_configuration.file_access_audit_log_level)
+    error_message = "File access audit log level must be one of: DISABLED, SUCCESS_ONLY, FAILURE_ONLY, or SUCCESS_AND_FAILURE."
+  }
+  validation {
+    condition = contains(["DISABLED", "SUCCESS_ONLY", "FAILURE_ONLY", "SUCCESS_AND_FAILURE"],
+    var.audit_log_configuration.file_share_access_audit_log_level)
+    error_message = "File share access audit log level must be one of: DISABLED, SUCCESS_ONLY, FAILURE_ONLY, or SUCCESS_AND_FAILURE."
   }
 }
 
