@@ -21,7 +21,7 @@ locals {
   # Get 1 subnet per AZ (For AWS Managed AD)
   ##########################################
 
-  #Get all AZs from VPC subnets
+  # Create a map of subnet IDs to their availability zones
   subnets_with_az = {
     for id, subnet in data.aws_subnet.subnet :
     id => subnet.availability_zone
@@ -36,12 +36,14 @@ locals {
     )
   }
 
-  # Extract one subnet ID from each AZ and limit to two subnets
-  extracted_subnets = [
-    for az, subnet_ids in local.subnets_by_az :
-    subnet_ids[0]
-  ][0:2]
- }
+  # Extract one subnet ID from each AZ
+  subnets_per_az = [
+    for az, subnet_ids in local.subnets_by_az : subnet_ids[0]
+  ]
+
+  # Limit the result to two subnets
+  extracted_subnets = slice(local.subnets_per_az, 0, 2)
+}
 
 ###########################################
 # AWS Managed AD
@@ -76,15 +78,15 @@ resource "aws_fsx_windows_file_system" "fsx_windows" {
   lifecycle {
     precondition {
       condition = (
-        var.storage_type != "HDD" || 
+        var.storage_type != "HDD" ||
         contains(["SINGLE_AZ_2", "MULTI_AZ_1"], var.deployment_type)
       )
       error_message = "HDD storage type is only supported with SINGLE_AZ_2 and MULTI_AZ_1 deployment types"
     }
-    
+
     precondition {
       condition = (
-        var.deployment_type != "MULTI_AZ_1" || 
+        var.deployment_type != "MULTI_AZ_1" ||
         length(local.extracted_subnets) >= 2
       )
       error_message = "MULTI_AZ_1 deployment type requires at least 2 subnets in different AZs"

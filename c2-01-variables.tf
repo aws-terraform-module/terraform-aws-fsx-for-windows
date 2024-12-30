@@ -66,10 +66,6 @@ variable "preferred_subnet_id" {
   type        = string
   default     = ""
 
-  validation {
-    condition     = var.deployment_type != "MULTI_AZ_1" || var.preferred_subnet_id != ""
-    error_message = "preferred_subnet_id is required when deployment_type is MULTI_AZ_1."
-  }
 }
 
 
