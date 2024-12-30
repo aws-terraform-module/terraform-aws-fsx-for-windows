@@ -5,6 +5,11 @@
 variable "vpc_id" {
   description = "(Required) The identifier of the VPC that the directory is in."
   type        = string
+
+  validation {
+    condition     = length(var.vpc_id) > 0
+    error_message = "The vpc_id variable must not be empty."
+  }
 }
 
 ## TODO : Enabled for user to input custom subnets
