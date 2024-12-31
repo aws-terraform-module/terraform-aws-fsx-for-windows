@@ -12,12 +12,11 @@ variable "vpc_id" {
   }
 }
 
-## TODO : Enabled for user to input custom subnets
-# variable "subnet_ids" {
-#   description = "(Optional) A list of IDs for the subnets that the file system will be accessible from. To specify more than a single subnet set `deployment_type` to `MULTI_AZ_1`. If not specify, the module will get subnet from `vpc_id`"
-#   type        = list(string)
-#   default     = []
-# }
+variable "subnet_ids" {
+  description = "(Optional) Two subnets that the file system will be accessible from. Please enter 2 subnet with different AZs .To specify more than a single subnet set `deployment_type` to `MULTI_AZ_1`. If not specify, the module will get subnet from `vpc_id`"
+  type        = list(string)
+  default     = []
+}
 
 #######################################
 # AWS Directory Service (AD)

@@ -9,9 +9,6 @@ A Terraform module to deploy and configure Amazon FSx for Windows File Server wi
 1. **AWS Managed Active Directory (AD) Only**  
    This module currently supports **only AWS Managed Active Directory**. Integration with other AD types is not available.
 
-2. **No Custom Subnet Specification**  
-   Specifying custom subnets for the FSx file system is not supported at this time.
-
 ---
 
 ## Usage Examples
