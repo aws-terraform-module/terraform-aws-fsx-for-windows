@@ -27,6 +27,9 @@ locals {
   }
 
   extracted_subnets = slice(keys(local.subnets_with_az), 0, 2)
+
+  # Subnets for AD and FSx
+  subnet_ids = length(var.subnet_ids) == 0 ? local.extracted_subnets : var.subnet_ids
 }
 
 ###########################################
@@ -47,7 +50,7 @@ resource "aws_directory_service_directory" "ad" {
 
   vpc_settings {
     vpc_id     = var.vpc_id
-    subnet_ids = length(var.subnet_ids) == 0 ? local.extracted_subnets : var.subnet_ids
+    subnet_ids = local.subnet_ids
   }
 
   tags = var.tags
@@ -89,8 +92,8 @@ resource "aws_fsx_windows_file_system" "fsx_windows" {
   aliases                         = var.aliases
   storage_type                    = var.storage_type
   storage_capacity                = var.storage_capacity
-  subnet_ids                      = length(var.subnet_ids) == 0 ? local.extracted_subnets : var.subnet_ids
-  preferred_subnet_id             = length(var.preferred_subnet_id) == 0 ? (length(local.extracted_subnets) > 0 ? local.extracted_subnets[0] : null) : var.preferred_subnet_id
+  subnet_ids                      = local.subnet_ids
+  preferred_subnet_id             = length(var.preferred_subnet_id) == 0 ? (length(local.local.subnet_ids) > 0 ? local.local.subnet_ids[0] : null) : var.preferred_subnet_id
   deployment_type                 = var.deployment_type
   throughput_capacity             = var.throughput_capacity
   automatic_backup_retention_days = var.automatic_backup_retention_days
