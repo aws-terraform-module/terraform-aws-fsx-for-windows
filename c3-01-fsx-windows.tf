@@ -93,7 +93,7 @@ resource "aws_fsx_windows_file_system" "fsx_windows" {
   storage_type                    = var.storage_type
   storage_capacity                = var.storage_capacity
   subnet_ids                      = local.subnet_ids
-  preferred_subnet_id             = length(var.preferred_subnet_id) == 0 ? (length(local.local.subnet_ids) > 0 ? local.local.subnet_ids[0] : null) : var.preferred_subnet_id
+  preferred_subnet_id             = length(var.preferred_subnet_id) == 0 ? (length(local.subnet_ids) > 0 ? local.subnet_ids[0] : null) : var.preferred_subnet_id
   deployment_type                 = var.deployment_type
   throughput_capacity             = var.throughput_capacity
   automatic_backup_retention_days = var.automatic_backup_retention_days
