@@ -47,7 +47,7 @@ resource "aws_directory_service_directory" "ad" {
 
   vpc_settings {
     vpc_id     = var.vpc_id
-    subnet_ids = local.extracted_subnets
+    subnet_ids = length(var.subnet_ids) == 0 ? local.extracted_subnets : var.subnet_ids
   }
 
   tags = var.tags
