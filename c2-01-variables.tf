@@ -15,7 +15,6 @@ variable "vpc_id" {
 variable "subnet_ids" {
   description = "(Optional) Two subnets that the file system will be accessible from. Please enter 2 subnet with different AZs .To specify more than a single subnet set `deployment_type` to `MULTI_AZ_1`. If not specify, the module will get subnet from `vpc_id`"
   type        = list(string)
-  default     = []
 
   validation {
     condition     = length(var.subnet_ids) == 2
