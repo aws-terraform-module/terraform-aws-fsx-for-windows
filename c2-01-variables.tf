@@ -92,8 +92,8 @@ variable "storage_type" {
   type        = string
   default     = "SSD"
   validation {
-    condition     = contains(["SSD", "HDD"], var.storage_type)
-    error_message = "Storage type must be either `SSD` or `HDD`."
+    condition     = var.storage_type != "HDD" || contains(["SINGLE_AZ_2", "MULTI_AZ_1"], var.deployment_type)
+    error_message = "HDD storage type is only supported with SINGLE_AZ_2 and MULTI_AZ_1 deployment types."
   }
 }
 
